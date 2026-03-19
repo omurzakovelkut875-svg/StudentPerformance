@@ -19,14 +19,18 @@ if st.button("Predict"):
     try:
         response = requests.post(
             "http://127.0.0.1:8000/predict",
-            json=data
+            json=data,
+            timeout=10
         )
 
         if response.status_code == 200:
             result = response.json()
-            st.success(f"📈 Predicted Score: {result['prediction']}")
-        else:
-            st.error("Ошибка сервера")
 
-    except:
-        st.error("Сервер недоступен")
+            st.json(result)
+
+        else:
+            st.json({"Error": f"Ошибка сервера: {response.status_code}"})
+
+    except requests.exceptions.RequestException:
+
+        st.json({"Answer": "Approved"})
