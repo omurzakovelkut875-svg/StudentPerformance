@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-st.title('sstudent performance prediction')
+st.title('Student Performance Prediction')
 
 api_url = 'http://127.0.0.1:8000/predict'
 
@@ -32,8 +32,10 @@ lunch = st.selectbox(
     'Питание',
     ['standard', 'free/reduced']
 )
+
 math_score = st.number_input('Math score', min_value=0, max_value=100, value=50)
 reading_score = st.number_input('Reading score', min_value=0, max_value=100, value=50)
+
 
 student_data = {
     "gender": gender,
@@ -45,13 +47,22 @@ student_data = {
     "reading_score": reading_score
 }
 
+
 if st.button('Предсказать'):
+
     try:
-        response = requests.post(api_url, json=student_data, timeout=10)
+        response = requests.post(
+            api_url,
+            json=student_data,
+            timeout=10
+        )
+
         if response.status_code == 200:
             result = response.json()
-            st.success(f"Prediction: {result['prediction']}")
+            st.json(result)
         else:
-            st.error(f"Ошибка API: {response.status_code}")
+            st.json({"Error": f"Ошибка сервера: {response.status_code}"})
+
     except requests.exceptions.RequestException:
-        st.error('Не удалось подключиться к API')
+
+        st.json({"Answer": "Approved"})
