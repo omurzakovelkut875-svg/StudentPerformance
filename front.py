@@ -1,36 +1,57 @@
 import streamlit as st
 import requests
 
-st.title("Student Performance Predictor")
+st.title('sstudent performance prediction')
 
+api_url = 'http://127.0.0.1:8000/predict'
 
-hours_study = st.slider("Hours of Study", 0, 12, 5)
-attendance = st.slider("Attendance (%)", 0, 100, 75)
-sleep_hours = st.slider("Sleep Hours", 0, 12, 7)
+gender = st.selectbox('Пол', ['male', 'female'])
 
+race_ethnicity = st.selectbox(
+    'Группа',
+    ['group A', 'group B', 'group C', 'group D', 'group E']
+)
 
-if st.button("Predict"):
-    data = {
-        "hours_study": hours_study,
-        "attendance": attendance,
-        "sleep_hours": sleep_hours
-    }
+parent_education = st.selectbox(
+    'Образование родителей',
+    [
+        "bachelor's degree",
+        'high school',
+        "master's degree",
+        'some college',
+        'some high school'
+    ]
+)
 
+test_preparation = st.selectbox(
+    'Подготовка к тесту',
+    ['none', 'completed']
+)
+
+lunch = st.selectbox(
+    'Питание',
+    ['standard', 'free/reduced']
+)
+math_score = st.number_input('Math score', min_value=0, max_value=100, value=50)
+reading_score = st.number_input('Reading score', min_value=0, max_value=100, value=50)
+
+student_data = {
+    "gender": gender,
+    "race_ethnicity": race_ethnicity,
+    "parent_education": parent_education,
+    "test_preparation": test_preparation,
+    "lunch": lunch,
+    "math_score": math_score,
+    "reading_score": reading_score
+}
+
+if st.button('Предсказать'):
     try:
-        response = requests.post(
-            "http://127.0.0.1:8000/predict",
-            json=data,
-            timeout=10
-        )
-
+        response = requests.post(api_url, json=student_data, timeout=10)
         if response.status_code == 200:
             result = response.json()
-
-            st.json(result)
-
+            st.success(f"Prediction: {result['prediction']}")
         else:
-            st.json({"Error": f"Ошибка сервера: {response.status_code}"})
-
+            st.error(f"Ошибка API: {response.status_code}")
     except requests.exceptions.RequestException:
-
-        st.json({"Answer": "Approved"})
+        st.error('Не удалось подключиться к API')
